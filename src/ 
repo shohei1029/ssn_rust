@@ -1,0 +1,41 @@
+use std::error::Error;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
+use std::collections::HashMap;
+
+fn main() {
+    let path = Path::new("Integrase_Zn_blastp_1e-5_domains_A,B,C_HIV-1-gM-noRs_pol-aa_v3.txt");
+    let display = path.display();
+
+    let mut file = match File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display,
+                    Error::description(&why)),
+        Ok(file) => file,
+    };
+
+    let mut text = String::new();
+    match file.read_to_string(&mut text) {
+        Err(why) => panic!("couldn't read {}: {}", display,
+                    Error::description(&why)),
+        Ok(_) => println!("{} contains:", display),
+    }
+
+    let lines = text.lines();
+    let mut blast = HashMap::new(); 
+    for line in lines {
+        let xs: Vec<&str> = line.split("\t").collect();
+        let mut blastsub = HashMap::new(); 
+        blastsub.insert(xs[1], xs[11]);
+        blast.insert(xs[0], blastsub);
+    }
+
+    for (query, items) in &blast {
+        for (subject, score) in items {
+            println!("{}, {} {}", query, subject, score);
+        }
+    }
+
+
+
+}
